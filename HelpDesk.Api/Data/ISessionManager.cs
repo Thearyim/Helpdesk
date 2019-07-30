@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace HelpDesk.Api.Data
 {
-    public interface IDataStore
+    public interface ISessionManager
     {
         Task<UserAccount> CreateAccountAsync(UserLogin loginInfo, string role);
 
@@ -11,6 +12,8 @@ namespace HelpDesk.Api.Data
         Task<UserAccount> GetAccountAsync(string username);
 
         Task<UserSession> GetSessionAsync(string username);
+
+        Task<UserSession> GetSessionAsync(Guid userToken);
 
         Task<UserSession> LoginAsync(UserLogin loginInfo);
 

@@ -63,7 +63,7 @@ namespace HelpDesk.Api.Data
             }
 
             string originalText = null;
-            byte[] encryptionKeyBytes = Encoding.Unicode.GetBytes(encryptionKey);
+            byte[] encryptionKeyBytes = Encoding.UTF8.GetBytes(encryptionKey);
 
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
@@ -78,7 +78,7 @@ namespace HelpDesk.Api.Data
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                using (MemoryStream msDecrypt = new MemoryStream(Encoding.Unicode.GetBytes(encryptedText)))
+                using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(encryptedText)))
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
@@ -114,7 +114,7 @@ namespace HelpDesk.Api.Data
             }
 
             byte[] encryptedText;
-            byte[] encryptionKeyBytes = Encoding.Unicode.GetBytes(encryptionKey);
+            byte[] encryptionKeyBytes = Encoding.UTF8.GetBytes(encryptionKey);
 
             using (AesCryptoServiceProvider aesAlg  = new AesCryptoServiceProvider())
             {
@@ -144,7 +144,7 @@ namespace HelpDesk.Api.Data
                 }
             }
 
-            return Encoding.Unicode.GetString(encryptedText);
+            return Convert.ToBase64String(encryptedText);
         }
     }
 }

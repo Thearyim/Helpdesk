@@ -5,19 +5,19 @@ using System.Threading.Tasks;
 
 namespace HelpDesk.Api.Data
 {
-    public class InMemoryDataStore : IDataStore
+    public class InMemorySessionManager : ISessionManager
     {
         private string encryptionKey;
         private Guid initializationVector;
         private Dictionary<string, UserAccount> userAccounts;
         private Dictionary<int, UserSession> userSessions;
 
-        public InMemoryDataStore()
+        public InMemorySessionManager()
             : this("SuperSecretKey77", Guid.Empty)
         {
         }
 
-        public InMemoryDataStore(string encryptionKey, Guid initializationVector)
+        public InMemorySessionManager(string encryptionKey, Guid initializationVector)
         {
             this.userAccounts = new Dictionary<string, UserAccount>(StringComparer.OrdinalIgnoreCase);
             this.userSessions = new Dictionary<int, UserSession>();
@@ -79,13 +79,25 @@ namespace HelpDesk.Api.Data
             return session;
         }
 
+        public async Task<UserSession> GetSessionAsync(Guid userToken)
+        {
+            UserSession session = await this.GetOrExpireUserSessionAsync(userToken: userToken).ConfigureAwait(false);
+
+            if (session == null)
+            {
+                throw new SessionNotFoundException($"A session does not exist for user.");
+            }
+
+            return session;
+        }
+
         public async Task<UserSession> LoginAsync(UserLogin loginInfo)
         {
             UserAccount existingAccount = await this.GetAccountAsync(loginInfo.Username).ConfigureAwait(false);
 
             this.ThrowIfPasswordDoesNotMatch(loginInfo, existingAccount);
 
-            UserSession session = await this.GetOrExpireUserSessionAsync(existingAccount.Id).ConfigureAwait(false);
+            UserSession session = await this.GetOrExpireUserSessionAsync(userId: existingAccount.Id).ConfigureAwait(false);
 
             if (session == null)
             {
@@ -126,10 +138,18 @@ namespace HelpDesk.Api.Data
             return updatedAccount;
         }
 
-        private Task<UserSession> GetOrExpireUserSessionAsync(int userId)
+        private Task<UserSession> GetOrExpireUserSessionAsync(int? userId = null, Guid? userToken = null)
         {
-            KeyValuePair<int, UserSession> sessionEntry = this.userSessions.FirstOrDefault(s => s.Value.UserId == userId);
-            UserSession userSession = sessionEntry.Value;
+            UserSession userSession = null;
+            if (userId != null)
+            {
+                userSession = this.userSessions.FirstOrDefault(s => s.Value.UserId == userId).Value;
+            }
+            else if (userToken != null)
+            {
+                userSession = this.userSessions.FirstOrDefault(s => s.Value.Token == userToken).Value;
+            }
+
             if (userSession != null && DateTime.UtcNow > userSession.Expiration)
             {
                 // Expire the session
