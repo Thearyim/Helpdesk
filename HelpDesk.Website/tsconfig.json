@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        /* Basic Options */
+        "target": "es5",
+        "module": "commonjs",
+
+        /* Strict Type-Checking Options */
+        "strict": true,
+
+        "jsx": "react",
+
+        "outDir": "./scripts",
+
+        "lib": [
+            "dom",
+            "es5",
+            "es6",
+            "scripthost",
+            "es2015.promise",
+            "es2015.iterable",
+            "es2015.collection"
+        ]
+    },
+
+    "include": [ "src" ],
+    "exclude": [ "node_modules", "**/__tests__/*" ]
+}

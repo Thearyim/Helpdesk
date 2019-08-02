@@ -2,15 +2,20 @@
 using HelpDesk.Api.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace HelpDesk.Api
 {
     public class Startup
     {
+        public const string LocalDevelopmentOrigins = nameof(LocalDevelopmentOrigins);
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -25,16 +30,28 @@ namespace HelpDesk.Api
             InMemoryTicketManager ticketManager = new InMemoryTicketManager();
             this.InitializeMockData(sessionManager, ticketManager);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
             services.AddSingleton<ISessionManager>(sessionManager);
             services.AddSingleton<ITicketManager>(ticketManager);
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(Startup.LocalDevelopmentOrigins, builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .Build();
+                });
+            });
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddJwtBearer(options =>
             //    {
             //        options.Authority = "{yourAuthorizationServerAddress}";
             //        options.Audience = "{yourAudience}";
             //    });
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,14 +60,35 @@ namespace HelpDesk.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                // Allow Cross Origin Resource Sharing (CORS) when running everything
+                // on the local dev environment (i.e. localhost).
+                app.UseCors(Startup.LocalDevelopmentOrigins);
+
+                //app.Use((context, next) =>
+                //{
+                //    // Allow Cross Origin Resource Sharing (CORS) when running everything
+                //    // on the local dev environment (i.e. localhost).
+                //    context.Response.Headers.Add("Access-Control-Allow-Origin", new StringValues("*"));
+
+                //    //context.Response.Headers.Add(
+                //    //    "Access-Control-Allow-Headers",
+                //    //    new StringValues("*"));
+
+                //    //context.Response.Headers.Add(
+                //    //    "Access-Control-Allow-Methods",
+                //    //    new StringValues("GET, POST, PUT, DELETE"));
+
+                //    return next.Invoke();
+                //});
             }
             else
             {
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             // app.UseAuthentication();
+            app.UseHttpsRedirection();          
             app.UseMvc();
         }
 
@@ -58,7 +96,7 @@ namespace HelpDesk.Api
         {
             UserLogin fakeUser = new UserLogin
             {
-                Username = "user@codingchallenge.com",
+                Username = "user",
                 Password = "secret"
             };
 

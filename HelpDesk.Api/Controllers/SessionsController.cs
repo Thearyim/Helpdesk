@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HelpDesk.Api.Data;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -29,23 +30,26 @@ namespace HelpDesk.Api.Controllers
 
         protected ISessionManager DataStore { get; }
 
-        // GET: /api/sessions/user@codingchallenge.com
+        // GET: /api/sessions/123
         [Produces("application/json")]
-        [HttpGet("{username}")]
-        public async Task<IActionResult> GetSessionAsync([FromRoute] string username)
+        [HttpGet("{sessionId}")]
+        public async Task<IActionResult> GetSessionAsync([FromRoute] int sessionId)
         {
             IActionResult response = null;
 
             try
             {
-                UserSession session = await this.DataStore.GetSessionAsync(username: username)
+                // For the sake of development, allow cross-origin responses.
+                // this.Response.AddCrossOriginHeaders();
+
+                UserSession session = await this.DataStore.GetSessionAsync(sessionId)
                     .ConfigureAwait(false);
 
                 response = this.Ok(session);
             }
             catch (AccountAuthorizationException)
             {
-                response = this.Unauthorized();
+                response = this.UserLoginInvalid();
             }
             catch (AccountNotFoundException exc)
             {
@@ -62,6 +66,7 @@ namespace HelpDesk.Api.Controllers
             return response;
         }
 
+
         // POST: /api/sessions
         [Produces("application/json")]
         [HttpPost]
@@ -71,6 +76,10 @@ namespace HelpDesk.Api.Controllers
 
             try
             {
+                //this.Response.AddCorsHeaders();
+                // For the sake of development, allow cross-origin responses.
+                // this.Response.AddCrossOriginHeaders();
+
                 // Get the user account from the data store.
                 // - If an account exists, then validate the password for the account.
                 //   o password matches, return OK w/session object
@@ -79,11 +88,11 @@ namespace HelpDesk.Api.Controllers
                 UserSession session = await this.DataStore.LoginAsync(loginInfo)
                     .ConfigureAwait(false);
 
-                response = this.Ok(session.Token);
+                response = this.Ok(session);
             }
             catch (AccountAuthorizationException)
             {
-                response = this.Unauthorized();
+                response = this.UserLoginInvalid();
             }
             catch (AccountNotFoundException exc)
             {
@@ -91,10 +100,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -108,6 +114,9 @@ namespace HelpDesk.Api.Controllers
 
             try
             {
+                // For the sake of development, allow cross-origin responses.
+                // this.Response.AddCrossOriginHeaders();
+
                 // Get the user account from the data store.
                 // - If an account exists, then validate the password for the account.
                 //   o password matches, return OK w/session object
@@ -116,12 +125,17 @@ namespace HelpDesk.Api.Controllers
                 await this.DataStore.LogoutAsync(sessionId).ConfigureAwait(false);
                 response = this.Ok();
             }
+            catch (AccountAuthorizationException)
+            {
+                response = this.UserLoginInvalid();
+            }
+            catch (AccountNotFoundException exc)
+            {
+                response = this.NotFound(exc.Message);
+            }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;

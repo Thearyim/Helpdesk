@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const { resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const dotenv = require('dotenv').config({path: __dirname + '/.env'})
 
 module.exports = {
 
@@ -19,11 +20,11 @@ module.exports = {
 
     resolve: {
         alias: {
-            SiteCss: resolve(__dirname, 'src/css/site.css'),
-            SiteImages: resolve(__dirname, 'src/images'),
-            SiteJs: resolve(__dirname, 'src/js/site.js'),
-            SiteState: resolve(__dirname, 'src/js/state.js'),
-            SiteStateActions: resolve(__dirname, 'src/js/state.actions.js'),
+            MockDataScripts: resolve(__dirname, 'src/js/MockData.js'),
+            SiteState: resolve(__dirname, 'src/js/State.js'),
+            SiteStateActions: resolve(__dirname, 'src/js/StateActions.js'),
+            SiteSession: resolve(__dirname, 'src/js/Session.js'),
+            SessionClient: resolve(__dirname, 'src/js/SessionClient.js')
         },
         extensions: ['.js', '.jsx']
     },
@@ -39,23 +40,21 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.(js|jsx)$/,
                 loader: "babel-loader",
                 exclude: /node_modules/,
                 options: {
                     presets: [
-                        ["es2015", { "modules": false }],
-                        "react",
+                        "@babel/preset-env",
+                        "@babel/preset-react"
                     ],
                     plugins: [
+                        "@babel/plugin-proposal-class-properties",
+                        "@babel/plugin-proposal-object-rest-spread",
+                        "@babel/plugin-transform-runtime",
                         "react-hot-loader/babel"
                     ]
                 }
-            },
-            {
-                test: /\.ts?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
@@ -70,17 +69,28 @@ module.exports = {
                         name: 'images/[name].[ext]'
                     }
                 }
+            },
+            {
+                test: /\.html$/,
+                use: [
+                    {
+                        loader: "html-loader"
+                    }
+                ]
             }
         ]
     },
 
     plugins: [
+        new webpack.DefinePlugin({
+            "process.env": dotenv.parsed
+        }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin(),
         new HtmlWebpackPlugin({
             template: 'template.ejs',
             appMountId: 'react-app-root',
-            title: 'helpdesk-web-application',
+            title: 'Helpdesk',
             filename: resolve(__dirname, "build", "index.html"),
         }),
     ]

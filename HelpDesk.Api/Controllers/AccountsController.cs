@@ -50,10 +50,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -80,10 +77,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -124,17 +118,14 @@ namespace HelpDesk.Api.Controllers
                 // User account does not exist
                 response = this.NotFound(exc.Message);
             }
-            catch (AccountAuthorizationException)
+            catch (AccountAuthorizationException exc)
             {
                 // User password does not match
-                response = this.Unauthorized();
+                response = this.Forbid(exc.Message);
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -171,24 +162,21 @@ namespace HelpDesk.Api.Controllers
             }
             catch (SessionNotFoundException exc)
             {
-                this.NotFound(exc.Message);
+                response = this.NotFound(exc.Message);
             }
             catch (AccountNotFoundException exc)
             {
                 // User account does not exist
                 response = this.NotFound(exc.Message);
             }
-            catch (AccountAuthorizationException)
+            catch (AccountAuthorizationException exc)
             {
                 // User password does not match
-                response = this.Unauthorized();
+                response = this.Forbid(exc.Message);
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;

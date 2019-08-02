@@ -26,9 +26,15 @@ namespace HelpDesk.Api.Data
             return Task.FromResult(ticket);
         }
 
-        public Task DeleteTicketAsync(UserSession session, int ticketId)
+        public async Task DeleteTicketAsync(UserSession session, int ticketId)
         {
-            throw new NotImplementedException();
+            IEnumerable<Ticket> tickets = await GetTicketsAsync(session, ticketId)
+                .ConfigureAwait(false);
+                
+            if (tickets?.Any() == true)
+            {
+                this.tickets.Remove(ticketId);
+            }
         }
 
         public Task<IEnumerable<Ticket>> GetTicketsAsync(UserSession session, int? ticketId = null)
@@ -61,9 +67,14 @@ namespace HelpDesk.Api.Data
             return Task.FromResult(matchingTickets as IEnumerable<Ticket>);
         }
 
-        public Task<Ticket> UpdateTicketAsync(UserSession session, Ticket ticket)
+        public async Task<Ticket> UpdateTicketAsync(UserSession session, Ticket ticket)
         {
-            throw new NotImplementedException();
+            IEnumerable<Ticket> tickets = await GetTicketsAsync(session, ticket.Id)
+                .ConfigureAwait(false);
+
+            this.tickets[ticket.Id] = ticket;
+
+            return ticket;
         }
     }
 }

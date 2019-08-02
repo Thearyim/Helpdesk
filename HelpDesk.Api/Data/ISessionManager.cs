@@ -11,6 +11,8 @@ namespace HelpDesk.Api.Data
 
         Task<UserAccount> GetAccountAsync(string username);
 
+        Task<UserSession> GetSessionAsync(int sessionId);
+
         Task<UserSession> GetSessionAsync(string username);
 
         Task<UserSession> GetSessionAsync(Guid userToken);

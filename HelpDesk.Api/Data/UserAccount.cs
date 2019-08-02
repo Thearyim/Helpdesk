@@ -2,6 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace HelpDesk.Api.Data
 {
@@ -35,12 +36,16 @@ namespace HelpDesk.Api.Data
             this.Role = role;
         }
 
+        [JsonProperty("id")]
         public int Id { get; }
 
+        [JsonProperty("username")]
         public string Username { get; }
 
+        [JsonProperty("password")]
         public string Password { get; }
 
+        [JsonProperty("role")]
         public string Role { get; }
 
         public static string Decrypt(string encryptedText, string encryptionKey, Guid initializationVector)

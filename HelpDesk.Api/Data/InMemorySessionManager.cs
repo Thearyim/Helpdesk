@@ -66,16 +66,28 @@ namespace HelpDesk.Api.Data
             return Task.FromResult(account);
         }
 
+        public Task<UserSession> GetSessionAsync(int sessionId)
+        {
+            UserSession session;
+            if (!this.userSessions.TryGetValue(sessionId, out session))
+            {
+                throw new SessionNotFoundException($"A session does not exist for id '{sessionId}'.");
+            }
+            return Task.FromResult(session);
+        }
+
         public async Task<UserSession> GetSessionAsync(string username)
         {
-            UserAccount account = await this.GetAccountAsync(username).ConfigureAwait(false);
-            UserSession session = await this.GetOrExpireUserSessionAsync(account.Id).ConfigureAwait(false);
+            UserAccount account = await this.GetAccountAsync(username)
+                .ConfigureAwait(false);
+
+            UserSession session = await this.GetOrExpireUserSessionAsync(account.Id)
+                .ConfigureAwait(false);
 
             if (session == null)
             {
-                throw new SessionNotFoundException($"A session does not exist for user account '{account.Username}'.");
+                throw new SessionNotFoundException($"A session does not exist for user '{username}'.");
             }
-
             return session;
         }
 
@@ -104,6 +116,7 @@ namespace HelpDesk.Api.Data
                 session = new UserSession(
                     id: this.userSessions.Count + 1,
                     userId: existingAccount.Id,
+                    username: loginInfo.Username,
                     userRole: "User",
                     token: Guid.NewGuid(),
                     expiration: DateTime.UtcNow.AddMinutes(30));

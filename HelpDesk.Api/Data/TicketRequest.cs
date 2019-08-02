@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HelpDesk.Api.Data
 {
@@ -12,10 +13,13 @@ namespace HelpDesk.Api.Data
             this.Context = context;
         }
 
+        [JsonProperty("title")]
         public string Title { get; }
 
+        [JsonProperty("description")]
         public string Description { get; }
 
+        [JsonProperty("context")]
         public IDictionary<string, object> Context { get; }
     }
 }

@@ -1,10 +1,10 @@
 import React from 'react';
 
-function HomeContainer({ children }) {
+function HomeContainer() {
 
     return (
         <div>
-            {children}
+            Home
         </div>
     )
 }

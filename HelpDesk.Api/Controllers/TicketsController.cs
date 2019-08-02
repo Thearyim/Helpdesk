@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HelpDesk.Api.Data;
 using Microsoft.AspNetCore.Http;
@@ -82,10 +81,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -124,10 +120,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -175,10 +168,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -226,10 +216,7 @@ namespace HelpDesk.Api.Controllers
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
@@ -259,29 +246,27 @@ namespace HelpDesk.Api.Controllers
 
                 UserSession session = await this.SessionManager.GetSessionAsync(token.Value)
                     .ConfigureAwait(false);
-
-                IEnumerable<Ticket> matchingTickets = await this.TicketManager.GetTicketsAsync(session, ticket.Id)
+                
+                Ticket updatedTicket = await this.TicketManager.UpdateTicketAsync(session, ticket)
                     .ConfigureAwait(false);
 
-                if (matchingTickets?.Any() == true)
-                {
-                    Ticket updatedTicket = await this.TicketManager.UpdateTicketAsync(session, matchingTickets.First())
-                        .ConfigureAwait(false);
-
-                    response = this.Ok(updatedTicket);
-                }
-                else
-                {
-                    response = this.NotFound();
-                }
-                
+                response = this.Ok(updatedTicket);
+            }
+            catch (UnauthorizedAccessException exc)
+            {
+                response = this.Forbid(exc.Message);
+            }
+            catch (AccountNotFoundException)
+            {
+                response = this.Unauthorized();
+            }
+            catch (SessionNotFoundException)
+            {
+                response = this.Unauthorized();
             }
             catch (Exception exc)
             {
-                response = new ObjectResult(exc.Message)
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
+                response = this.InternalServerError(exc.Message);
             }
 
             return response;
