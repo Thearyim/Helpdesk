@@ -22,8 +22,7 @@ function App() {
                     <Route
                         exact path="/"
                         render={(props) => (
-                            <HomeContainer>
-                            </HomeContainer>
+                            <HomeContainer />
                         )}
                     />
                     <Route

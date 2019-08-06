@@ -1,14 +1,14 @@
 using System;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace HelpDesk.Api.Data
 {
-    [TestClass]
-    [TestCategory("Unit")]
+    [TestFixture]
+    [Category("Unit")]
     public class UserAccountTests
     {
-        [TestMethod]
+        [Test]
         public void UserAccountEncryptsPasswordsToExpectedValuesGivenAnEncryptionKeyAndInitializationVector()
         {
             // Encryption key must be EXACTLY 16 characters in length.
@@ -24,7 +24,7 @@ namespace HelpDesk.Api.Data
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void UserAccountCanEncryptAndDecryptAGivenPasswordToTheExpectedOriginalValue()
         {
             // Encryption key must be EXACTLY 16 characters in length.

@@ -7,6 +7,7 @@ namespace HelpDesk.Api.Data
 {
     public class InMemorySessionManager : ISessionManager
     {
+        private int lastKey;
         private string encryptionKey;
         private Guid initializationVector;
         private Dictionary<string, UserAccount> userAccounts;
@@ -22,6 +23,7 @@ namespace HelpDesk.Api.Data
             this.userAccounts = new Dictionary<string, UserAccount>(StringComparer.OrdinalIgnoreCase);
             this.userSessions = new Dictionary<int, UserSession>();
 
+            this.lastKey = 0;
             this.encryptionKey = encryptionKey;
             this.initializationVector = initializationVector;
         }
@@ -64,6 +66,11 @@ namespace HelpDesk.Api.Data
             }
 
             return Task.FromResult(account);
+        }
+
+        public Task<IEnumerable<UserAccount>> GetAccountsAsync()
+        {
+            return Task.FromResult(this.userAccounts.Values as IEnumerable<UserAccount>);
         }
 
         public Task<UserSession> GetSessionAsync(int sessionId)
@@ -113,11 +120,12 @@ namespace HelpDesk.Api.Data
 
             if (session == null)
             {
+                this.lastKey++;
                 session = new UserSession(
-                    id: this.userSessions.Count + 1,
+                    id: this.lastKey,
                     userId: existingAccount.Id,
                     username: loginInfo.Username,
-                    userRole: "User",
+                    userRole: existingAccount.Role,
                     token: Guid.NewGuid(),
                     expiration: DateTime.UtcNow.AddMinutes(30));
 

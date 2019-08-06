@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpDesk.Api", "HelpDesk.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpDesk.Website", "HelpDesk.Website\HelpDesk.Website.csproj", "{F0B17D7A-D858-4DE8-8309-ADFC8571B85B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpDesk.Api.UnitTests", "HelpDesk.Api.UnitTests\HelpDesk.Api.UnitTests.csproj", "{AADE1DD2-7CA1-4819-A303-BF6C51712AD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpDesk.Api.UnitTests", "HelpDesk.Api.UnitTests\HelpDesk.Api.UnitTests.csproj", "{AADE1DD2-7CA1-4819-A303-BF6C51712AD0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1E16879-0578-40FA-8ADB-91C4B4992B87}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

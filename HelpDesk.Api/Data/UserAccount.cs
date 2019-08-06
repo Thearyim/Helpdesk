@@ -20,11 +20,6 @@ namespace HelpDesk.Api.Data
                 throw new ArgumentException("The username parameter must be defined", nameof(username));
             }
 
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                throw new ArgumentException("The password parameter must be defined", nameof(password));
-            }
-
             if (string.IsNullOrWhiteSpace(role))
             {
                 throw new ArgumentException("The role parameter must be defined", nameof(role));

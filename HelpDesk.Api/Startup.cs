@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
 using HelpDesk.Api.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Primitives;
 
 namespace HelpDesk.Api
 {
@@ -34,6 +30,8 @@ namespace HelpDesk.Api
             services.AddSingleton<ISessionManager>(sessionManager);
             services.AddSingleton<ITicketManager>(ticketManager);
 
+            // Allow Cross Origin Resource Sharing (CORS) when running everything
+            // on the local dev environment (i.e. localhost).
             services.AddCors(options =>
             {
                 options.AddPolicy(Startup.LocalDevelopmentOrigins, builder =>
@@ -44,6 +42,7 @@ namespace HelpDesk.Api
                         .Build();
                 });
             });
+
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddJwtBearer(options =>
             //    {
@@ -60,32 +59,15 @@ namespace HelpDesk.Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                // Allow Cross Origin Resource Sharing (CORS) when running everything
-                // on the local dev environment (i.e. localhost).
-                app.UseCors(Startup.LocalDevelopmentOrigins);
-
-                //app.Use((context, next) =>
-                //{
-                //    // Allow Cross Origin Resource Sharing (CORS) when running everything
-                //    // on the local dev environment (i.e. localhost).
-                //    context.Response.Headers.Add("Access-Control-Allow-Origin", new StringValues("*"));
-
-                //    //context.Response.Headers.Add(
-                //    //    "Access-Control-Allow-Headers",
-                //    //    new StringValues("*"));
-
-                //    //context.Response.Headers.Add(
-                //    //    "Access-Control-Allow-Methods",
-                //    //    new StringValues("GET, POST, PUT, DELETE"));
-
-                //    return next.Invoke();
-                //});
             }
             else
             {
                 app.UseHsts();
             }
+
+            // Allow Cross Origin Resource Sharing (CORS) when running everything
+            // on the local dev environment (i.e. localhost).
+            app.UseCors(Startup.LocalDevelopmentOrigins);
 
             // app.UseAuthentication();
             app.UseHttpsRedirection();          
@@ -94,32 +76,68 @@ namespace HelpDesk.Api
 
         private void InitializeMockData(InMemorySessionManager sessionManager, InMemoryTicketManager ticketManager)
         {
-            UserLogin fakeUser = new UserLogin
+            UserLogin user1 = new UserLogin
             {
-                Username = "user",
+                Username = "user1",
                 Password = "secret"
             };
 
-            sessionManager.CreateAccountAsync(fakeUser, UserRole.Admin)
-                .GetAwaiter().GetResult();
-
-            UserSession fakeUserSession = sessionManager.LoginAsync(fakeUser)
-                .GetAwaiter().GetResult();
-
-            List<Ticket> fakeTickets = new List<Ticket>()
+            UserLogin user2 = new UserLogin
             {
-                new Ticket
-                {
-                    Title = "This is ticket #1",
-                    Description = "A description of ticket #1"
-                }
+                Username = "user2",
+                Password = "secret"
             };
 
-            foreach (Ticket ticket in fakeTickets)
+            UserLogin admin = new UserLogin
             {
-                ticketManager.CreateTicketAsync(fakeUserSession, ticket)
+                Username = "admin",
+                Password = "secret"
+            };
+
+            sessionManager.CreateAccountAsync(admin, UserRole.Admin)
+                .GetAwaiter().GetResult();
+
+            sessionManager.CreateAccountAsync(user1, UserRole.User)
+                .GetAwaiter().GetResult();
+
+            sessionManager.CreateAccountAsync(user2, UserRole.User)
+                .GetAwaiter().GetResult();
+
+            UserSession user1Session = sessionManager.LoginAsync(user1)
+                .GetAwaiter().GetResult();
+
+            UserSession user2Session = sessionManager.LoginAsync(user2)
+                .GetAwaiter().GetResult();
+
+            for (int i = 1; i <= 3; i++)
+            {
+                Ticket fakeTicket = new Ticket
+                {
+                    Title = $"{user1.Username}: This is ticket #{i}",
+                    Description = $"A description of ticket #{i}"
+                };
+
+                ticketManager.CreateTicketAsync(user1Session, fakeTicket)
                     .GetAwaiter().GetResult();
             }
+
+            for (int i = 4; i <= 5; i++)
+            {
+                Ticket fakeTicket = new Ticket
+                {
+                    Title = $"{user2.Username}: This is ticket #{i}",
+                    Description = $"A description of ticket #{i}"
+                };
+
+                ticketManager.CreateTicketAsync(user2Session, fakeTicket)
+                    .GetAwaiter().GetResult();
+            }
+
+            sessionManager.LogoutAsync(user1Session.Id)
+                .GetAwaiter().GetResult();
+
+            sessionManager.LogoutAsync(user2Session.Id)
+                .GetAwaiter().GetResult();
         }
     }
 }

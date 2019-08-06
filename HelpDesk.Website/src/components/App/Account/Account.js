@@ -1,24 +1,53 @@
 ﻿import React from 'react';
+import { withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as Actions from 'SiteStateActions';
 import $ from 'jquery';
 import './Account.css';
+import { currentSession, sessionClient } from 'SiteSession';
 
-function Account({ state, actions }) {
+function Account({ state, actions, history }) {
+
+    async function handleAccountCreation(event) {
+        event.preventDefault();
+        let username = $("#accountUsername").val();
+        let password = $("#accountPassword").val();
+
+        console.log("Creating user account...");
+        let result = await sessionClient.createAccount(username, password);
+
+        if (result.error) {
+            alert(result.error);
+        }
+        else {
+            console.log("Logging in user account...");
+            let result = await sessionClient.login(username, password);
+
+            if (result.error) {
+                alert(result.error);
+            }
+            else {
+                currentSession.session = result.data;
+                actions.loginUser(result.data);
+
+                console.log("User logged in. Redirect to home.");
+                history.push('/');
+            }
+        }
+    }
 
     return (
         <div className="accountContainer">
-            <form>
-                <label htmlFor="username">
-                    <input id="accountUsername" name="username" type="text" placeholder="Enter username" />
+            <form className="form-group" onSubmit={handleAccountCreation}>
+                <label htmlFor="accountUsername">Username
+                    <input id="accountUsername" type="text" className="form-control input-sm" defaultValue="" />
                 </label>
                 <br />
-                <label htmlFor="password">
-                    <input id="accountPassword" name="password" type="password" placeholder="Enter password" />
+                <label htmlFor="accountPassword">Password
+                    <input id="accountPassword" type="password" className="form-control input-sm" defaultValue="" />
                 </label>
-                <br />
-                <button type="submit">Create Account</button>
+                <button className="btn btn-primary btn-sm" type="submit">Create Account</button>
             </form>
         </div>
     )
@@ -51,4 +80,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Account);
+)(withRouter(Account));

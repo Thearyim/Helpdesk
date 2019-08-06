@@ -55,6 +55,10 @@ namespace HelpDesk.Api.Controllers
             {
                 response = this.NotFound(exc.Message);
             }
+            catch (SessionNotFoundException exc)
+            {
+                response = this.NotFound(exc.Message);
+            }
             catch (Exception exc)
             {
                 response = new ObjectResult(exc.Message)
@@ -130,6 +134,10 @@ namespace HelpDesk.Api.Controllers
                 response = this.UserLoginInvalid();
             }
             catch (AccountNotFoundException exc)
+            {
+                response = this.NotFound(exc.Message);
+            }
+            catch (SessionNotFoundException exc)
             {
                 response = this.NotFound(exc.Message);
             }

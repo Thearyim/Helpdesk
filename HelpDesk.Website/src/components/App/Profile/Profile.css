@@ -1,0 +1,13 @@
+div[class='profile'] button {
+    border: 0px;
+}
+
+div[class='profile'] button img {
+    height: 20px;
+    margin-right: 8px;
+}
+
+div[class='profile'] button span {
+    color: #999;
+}
+

@@ -1,3 +1,7 @@
 ﻿.accountContainer{
     margin: 50px;
 }
+
+.accountContainer button {
+    margin-left: 10px;
+}

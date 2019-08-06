@@ -13,5 +13,6 @@
 //  }
 // }
 export const initialState = {
-    session: null
+    session: null,
+    tickets: []
 };

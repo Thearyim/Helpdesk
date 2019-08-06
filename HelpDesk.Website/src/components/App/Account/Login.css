@@ -2,6 +2,11 @@
     margin: 50px;
 }
 
+.loginContainer button {
+    margin-left: 10px;
+}
+
 #createAccount {
     margin-left: 10px;
+    font-size: 11pt;
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HelpDesk.Api.Data;
 using Microsoft.AspNetCore.Http;
@@ -69,7 +70,40 @@ namespace HelpDesk.Api.Controllers
                     .ConfigureAwait(false);
 
                 // Don't share the password with the client-side
-                response = this.Ok(new UserAccount(account.Id, account.Username, "secret", account.Role));
+                response = this.Ok(new UserAccount(account.Id, account.Username, null, account.Role));
+            }
+            catch (AccountNotFoundException exc)
+            {
+                response = this.BadRequest(exc.Message);
+            }
+            catch (Exception exc)
+            {
+                response = this.InternalServerError(exc.Message);
+            }
+
+            return response;
+        }
+
+        // GET: /api/accounts
+        [Produces("application/json")]
+        [HttpGet]
+        public async Task<IActionResult> GetAccountsAsync()
+        {
+            IActionResult response = null;
+
+            try
+            {
+                IEnumerable<UserAccount> accounts = await this.SessionManager.GetAccountsAsync()
+                    .ConfigureAwait(false);
+
+                List<UserAccount> cleanedAccounts = new List<UserAccount>();
+                foreach (UserAccount account in accounts)
+                {
+                    cleanedAccounts.Add(new UserAccount(account.Id, account.Username, null, account.Role));
+                }
+
+                // Don't share the password with the client-side
+                response = this.Ok(cleanedAccounts);
             }
             catch (AccountNotFoundException exc)
             {

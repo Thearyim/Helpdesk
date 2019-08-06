@@ -20,11 +20,12 @@ module.exports = {
 
     resolve: {
         alias: {
-            MockDataScripts: resolve(__dirname, 'src/js/MockData.js'),
+            SiteImages: resolve(__dirname, 'src/images'),
             SiteState: resolve(__dirname, 'src/js/State.js'),
             SiteStateActions: resolve(__dirname, 'src/js/StateActions.js'),
             SiteSession: resolve(__dirname, 'src/js/Session.js'),
-            SessionClient: resolve(__dirname, 'src/js/SessionClient.js')
+            SessionClient: resolve(__dirname, 'src/js/SessionClient.js'),
+            TicketClient: resolve(__dirname, 'src/js/TicketClient.js')
         },
         extensions: ['.js', '.jsx']
     },

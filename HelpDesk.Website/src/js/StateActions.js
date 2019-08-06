@@ -3,7 +3,8 @@
 */
 export const ACTION_TYPES = {
     LOGIN: "LOGIN",
-    LOGOUT: "LOGOUT"
+    LOGOUT: "LOGOUT",
+    SET_TICKETS: "SET_TICKETS",
 };
 
 /*
@@ -18,6 +19,11 @@ export const logoutUser = () => ({
     type: ACTION_TYPES.LOGOUT
 });
 
+export const setTickets = (tickets) => ({
+    type: ACTION_TYPES.SET_TICKETS,
+    tickets: tickets
+});
+
 /*
     Action Reducers
 */
@@ -25,7 +31,8 @@ export const siteStateReducer = (state = [], action) => {
     let newState = undefined;
 
     // State Object Format:
-    // session: {
+    // {
+    //   session: {
     //      user: '',
     //      data: {
     //          id: 1,
@@ -35,6 +42,14 @@ export const siteStateReducer = (state = [], action) => {
     //          token: 'E37B6ABF-894B-4E1A-A6CE-C0A1A3881366',
     //          expiration: '2019-07-31T13:45:30.123456Z'
     //      }
+    //   tickets: [
+    //      {
+    //          ...
+    //      },
+    //      {
+    //          ...
+    //      }
+    //   ]
     // }
 
     switch (action.type) {
@@ -42,7 +57,8 @@ export const siteStateReducer = (state = [], action) => {
 
             // Replace session with new session
             newState = {
-                session: action.session
+                session: action.session,
+                tickets: state.tickets
             };
 
             break;
@@ -51,7 +67,17 @@ export const siteStateReducer = (state = [], action) => {
 
             // Remove the current session
             newState = {
-                session: null
+                session: null,
+                tickets: state.tickets
+            };
+
+            break;
+
+        case ACTION_TYPES.SET_TICKETS:
+
+            newState = {
+                session: state.session,
+                tickets: action.tickets
             };
 
             break;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HelpDesk.Api.Data
@@ -10,6 +11,8 @@ namespace HelpDesk.Api.Data
         Task DeleteAccountAsync(UserLogin loginInfo);
 
         Task<UserAccount> GetAccountAsync(string username);
+
+        Task<IEnumerable<UserAccount>> GetAccountsAsync();
 
         Task<UserSession> GetSessionAsync(int sessionId);
 

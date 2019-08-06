@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -7,7 +8,7 @@ import $ from 'jquery';
 import './Login.css';
 import { currentSession, sessionClient } from 'SiteSession';
 
-function Login({ state, actions }) {
+function Login({ state, actions, history }) {
 
     async function handleLogin(event) {
         event.preventDefault();
@@ -16,26 +17,26 @@ function Login({ state, actions }) {
         let result = await sessionClient.login(username, password);
 
         if (result.error) {
-            alert(userSession.error);
+            alert(result.error);
         }
         else {
             currentSession.session = result.data;
             actions.loginUser(result.data);
+            history.push('/');
         }   
     }
 
     return (
         <div className="loginContainer">
-            <form onSubmit={handleLogin}>
-                <label htmlFor="username">
-                    <input id="loginUsername" name="username" type="text" placeholder="Enter username" />
+            <form className="form-group" onSubmit={handleLogin}>
+                <label htmlFor="loginUsername">Username
+                    <input id="loginUsername" type="text" className="form-control input-sm" defaultValue="" />
                 </label>
                 <br/>
-                <label htmlFor="password">
-                    <input id="loginPassword" name="password" type="password" placeholder="Enter password" />
+                <label htmlFor="loginPassword">Password
+                    <input id="loginPassword" type="password" className="form-control input-sm" defaultValue="" />
                 </label>
-                <br />
-                <button type="submit">Login</button><Link id="createAccount" to="/account">Create Account</Link>
+                <button className="btn btn-primary btn-sm" type="submit">Login</button><Link id="createAccount" to="/account">Create Account</Link>
             </form>
         </div>
     )
@@ -68,4 +69,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Login);
+)(withRouter(Login));

@@ -19,11 +19,7 @@ const HeaderContainer = () => {
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link" to="/LogIn">LogIn</Link>
-                        </li>
-                        
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/Tickets">Tickets</Link>
+                            <Link className="nav-link" to="/login">Sign In</Link>
                         </li>
                     </ul>
                 </div>

@@ -1,31 +1,44 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as Actions from 'SiteStateActions';
+import profileIcon from 'SiteImages/userIcon.png';
+import { currentSession, sessionClient } from 'SiteSession';
 import './Profile.css';
 
-const Profile = ({ state, actions }) => {
-    
+const Profile = ({ state, actions, history }) => {
+
+    async function handleLogout(event) {
+        event.preventDefault();
+
+        console.log("Logging user out...");
+        let result = await sessionClient.logout(currentSession.id);
+
+        if (result.error) {
+            alert(result.error);
+        }
+        else {
+            currentSession.session = null;
+            actions.logoutUser();
+
+            console.log("User logged out. Redirect to login.");
+            history.push('/login');
+        } 
+    }
+
     if (state.session) {
         return (
-            <div className="header">
-                <nav className="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-                    <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNavDropdown">
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/Profile">{state.session.username}</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/Profile">Log Out</Link>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-            </div>
+            <div className="dropdown profile">
+                <button className="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                    <img className="profileIcon" src={profileIcon} />&nbsp;<span className="caret">{state.session.username}</span>
+                </button>
+                <ul className="dropdown-menu">
+                    <li><Link className="nav-link" to="/account">Account</Link></li>
+                    <li><Link className="nav-link" to="/login" onClick={handleLogout}>Sign Out</Link></li>
+                </ul>
+            </div> 
         );
     }
     else {
@@ -62,4 +75,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(Profile);
+)(withRouter(Profile));
