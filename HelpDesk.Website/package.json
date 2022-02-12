@@ -35,7 +35,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "ajv": "6.9.1",
+    "ajv": "6.12.3",
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.4",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
